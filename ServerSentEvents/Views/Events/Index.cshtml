@@ -1,0 +1,34 @@
+﻿<DOCTYPE! html>
+<html>
+<head>
+    <title>Events</title>
+    <script>
+        var eventSource = new EventSource("/events");
+
+        eventSource.onmessage = function (event) {
+            appendToOutput(event.data);
+
+            if (event.id == "CLOSE") {
+                source.close();
+            }
+        };
+
+        eventSource.onopen = function () { appendToOutput('*** Connected ***'); };
+        eventSource.onerror = function () { appendToOutput('*** Error ***'); };
+
+        var appendToOutput = function (msg) {
+            var div = document.getElementById("connections");
+            var pre = document.createElement("pre");
+            pre.appendChild(document.createTextNode(msg));
+
+            div.appendChild(pre);
+            div.appendChild(document.createElement('hr'));
+        };
+    </script>
+</head>
+<body>
+    <h1>Live: Connections Information</h1>
+    <div id="connections"/>
+</body>
+</html>
+</DOCTYPE!>
