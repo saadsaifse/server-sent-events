@@ -23,7 +23,7 @@ namespace ServerSentEvents
             }
 
             app.UseStaticFiles()
-               .MapServerSentEvents("/events")
+               .MapServerSentEvents("/updates")
                .UseMvc(routes=>
                 {
                     routes.MapRoute("default", "{controller=Events}/{action=Index}");

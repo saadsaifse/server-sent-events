@@ -1,9 +1,58 @@
-﻿<DOCTYPE! html>
+﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Events</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>SSE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        h1 {
+            padding: 5px;
+        }
+
+        .wrapper {
+            display: grid;
+            grid-template-columns: 50px 0.5fr 0.5fr;
+            grid-template-rows: 30px 30px 1fr;
+            grid-gap: 1em;
+        }
+
+        .item2 {
+            grid-row: 1;
+            grid-column: 2;
+            justify-self: start;
+        }
+
+        .item3 {
+            grid-row: 2;
+            grid-column: 1;
+        }
+
+        .item4 {
+            grid-row: 2/4;
+            grid-column: 2/3;
+            justify-self: stretch;
+        }
+
+        .item5 {
+            grid-row: 2;
+            grid-column: 3;
+            justify-self: start;
+        }
+
+        .serverUpdates {
+            padding: 40px 0 0 0;
+        }
+
+        .updates {
+            border-style: groove;
+        }
+    </style>
+
+
     <script>
-        var eventSource = new EventSource("/events");
+        var eventSource = new EventSource("/updates");
 
         eventSource.onmessage = function (event) {
             appendToOutput(event.data);
@@ -17,18 +66,57 @@
         eventSource.onerror = function () { appendToOutput('*** Error ***'); };
 
         var appendToOutput = function (msg) {
-            var div = document.getElementById("connections");
+            var div = document.getElementById("updates");
             var pre = document.createElement("pre");
             pre.appendChild(document.createTextNode(msg));
 
             div.appendChild(pre);
             div.appendChild(document.createElement('hr'));
         };
+
+        function sendPing() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/Events/Ping", true);
+            xhttp.send();
+        }
+
+
+        function sendMessage() {
+            var textArea = document.getElementById("message");
+
+            if (!textArea.value || 0 === textArea.value.length) {
+                alert("Message is empty");
+                return;
+            }
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    textArea.value = "";
+                }
+            };
+            xhttp.open("POST", "/Events/Message", true);
+            xhttp.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+            xhttp.send(JSON.stringify(textArea.value));
+        }
     </script>
+
 </head>
 <body>
-    <h1>Live: Connections Information</h1>
-    <div id="connections"/>
+    <h1>Server Sent Events</h1>
+
+    <div class="wrapper">
+        <label class="item1" for="ping">Ping: </label>
+        <button class="item2" id="ping" onclick="sendPing()">Send Ping</button>
+        <label class="item3" for="message">Message: </label>
+        <textarea class="item4" id="message" cols="30" rows="10"></textarea>
+        <button class="item5" id="send" onclick="sendMessage()">Send Message</button>
+    </div>
+
+
+    <div class="serverUpdates">
+        <h2 for="updates">Server Updates:</h2>
+        <p id="updates" class="updates"></p>
+    </div>
 </body>
 </html>
-</DOCTYPE!>
