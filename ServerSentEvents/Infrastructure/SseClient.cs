@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,10 +26,22 @@ namespace ServerSentEvents.Infrastructure
             if (!IsConnected)
                 throw new InvalidOperationException("Client is not connected!");
 
-            var wireMessage = "data: " + msg + "\n\n";
-            var bytes = Encoding.UTF8.GetBytes(wireMessage);
+            var bytes = GetFormattedMessageBytes(msg);
+
             await response.Body.WriteAsync(bytes, 0, bytes.Length);
             await response.Body.FlushAsync();
+        }
+
+        private byte[] GetFormattedMessageBytes(string msg)
+        {
+            var messages = new StringBuilder();
+            var lines = msg.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            foreach (var line in lines)
+            {
+                messages.Append($"data:{line}\n");
+            }
+            messages.Append("\n\n");
+            return Encoding.UTF8.GetBytes(messages.ToString(), 0, messages.Length);
         }
     }
 }

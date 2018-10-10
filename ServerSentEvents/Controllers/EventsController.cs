@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ServerSentEvents.Infrastructure;
-using System;
 using System.Threading.Tasks;
 
 namespace ServerSentEvents.Controllers
